@@ -1,0 +1,19 @@
+# 批量下载链接示例
+# 每行一个视频链接
+# 井号开头的行会被忽略
+
+# YouTube 视频示例（替换为实际链接）
+# https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+# B站视频示例（替换为实际链接）
+# https://www.bilibili.com/video/BV1xx411c7mD
+
+# 抖音视频示例（替换为实际链接）
+# https://www.douyin.com/video/7xxxxxx
+
+# 使用说明：
+# 1. 删除井号和空格，填入实际视频链接
+# 2. 每行一个链接
+# 3. 保存文件
+# 4. 在程序中选择"批量下载"功能
+# 5. 输入本文件路径：urls.txt
