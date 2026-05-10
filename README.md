@@ -1,7 +1,6 @@
-# Video Downloader · 视频下载工具
+# Video Downloader
 
 🎬 Download videos from 1000+ websites (YouTube, Bilibili, Douyin, Twitter, etc.)
-🎬 跨平台视频下载工具，支持 YouTube、B站、抖音等 1000+ 视频网站
 
 **Author:** Davey Wong <wgwcko@gmail.com> · [www.guangweiblog.com](https://www.guangweiblog.com)
 
@@ -11,24 +10,22 @@
 
 ---
 
-## Features · 主要特性
+## Features
 
-| English | 中文 |
-|---------|------|
-| 🌍 Cross-platform (Windows / macOS / Linux) | 🌍 **跨平台支持** |
-| 🎯 1000+ supported sites: YouTube, Bilibili, Douyin, Twitter, etc. | 🎯 **支持 1000+ 网站** |
-| 🎨 Interactive menu, easy to use | 🎨 **交互式菜单，操作简单** |
-| 📹 Multiple download modes: video, audio, subtitles | 📹 **多种下载模式** |
-| ⚙️ Custom quality: 1080p, 720p, 480p, 360p | ⚙️ **自定义画质** |
-| 📦 Batch download from URL list file | 📦 **批量下载** |
-| 🔑 Premium member login via browser cookies | 🔑 **大会员登录支持** |
-| 🔒 For educational and research purposes | 🔒 **教育研究用途** |
+- 🌍 **Cross-platform** — Windows, macOS, Linux
+- 🎯 **1000+ sites supported** — YouTube, Bilibili, Douyin, Twitter, Facebook, Instagram, TikTok, Vimeo and more
+- 🎨 **Interactive menu** — easy to use, no command memorization
+- 📹 **Multiple modes** — video, audio, subtitles
+- ⚙️ **Custom quality** — 1080p, 720p, 480p, 360p
+- 📦 **Batch download** — from a URL list file
+- 🔑 **Premium login** — browser cookie extraction for member-only content
+- 🔒 **Educational use** — for learning and research purposes
 
 ---
 
-## Quick Start · 快速开始
+## Quick Start
 
-### Method 1: One-click · 一键启动
+### One-Click Launcher
 
 **Windows:** Double-click `start_windows.bat`
 
@@ -38,81 +35,70 @@ chmod +x start_mac_linux.sh
 ./start_mac_linux.sh
 ```
 
-### Method 2: Manual · 手动运行
+### Manual
 
 ```bash
-# Install yt-dlp · 安装依赖
 pip install -U yt-dlp
-
-# Run · 运行
 python video_downloader.py   # Windows
 python3 video_downloader.py  # macOS / Linux
 ```
 
 ---
 
-## Usage · 使用说明
+## Usage
 
 ```
 ==================================================
-    Video Downloader · 视频下载工具
+       Video Downloader
 ==================================================
-1. Download video (best quality) · 最高画质
-2. Download video (custom quality) · 指定画质
-3. Download audio only (MP3) · 仅下载音频
-4. Download video + subtitles · 视频+字幕
-5. Batch download · 批量下载
-6. Show video info · 查看视频信息
-7. Login settings (browser cookies) · 登录设置
-0. Exit · 退出
+1. Download video (best quality)
+2. Download video (custom quality)
+3. Download audio only (MP3)
+4. Download video + subtitles
+5. Batch download
+6. Show video info
+7. Login settings (browser cookies)
+0. Exit
 ==================================================
 ```
 
-### Login for Premium Content · 大会员登录
+### Premium Member Login
 
-Bilibili premium members (大会员) need to enable cookie login to access 4K and 1080P high-bitrate content:
+For Bilibili premium members (大会员) to access 4K and 1080P high-bitrate content:
 
-1. Select **option 7** in the menu
+1. Select **option 7** from the menu
 2. Choose your browser (Chrome / Firefox / Edge)
-3. The tool will extract your login session automatically
-4. All formats become available
+3. The tool extracts your login session automatically
+4. All premium formats become available
 
-B站大会员用户请先选 **选项 7** 设置浏览器 Cookie，解锁 4K/1080P高码率画质。
-
-### Batch Download · 批量下载
+### Batch Download
 
 1. Edit `urls.txt`, one URL per line
-2. Select option **5** in the menu
-3. Enter the file path: `urls.txt`
-
-```
-https://www.youtube.com/watch?v=xxxxx
-https://www.bilibili.com/video/BVxxxxx
-https://www.douyin.com/video/xxxxxx
-```
+2. Select option **5**
+3. Enter: `urls.txt`
 
 ---
 
-## Supported Sites · 支持的网站
+## Supported Sites
 
-| Chinese Platforms · 国内平台 | International · 国际平台 |
-|-----------------------------|------------------------|
-| 🎬 Bilibili (B站) | ▶️ YouTube |
-| 📱 Douyin (抖音) | 🐦 Twitter/X |
-| 🎥 Tencent Video (腾讯视频) | 📘 Facebook |
-| 🎬 iQIYI (爱奇艺) | 📸 Instagram |
-| 📺 Youku (优酷) | 🎵 TikTok |
-| 🎞️ Xigua Video (西瓜视频) | 🎬 Vimeo |
+| Chinese Platforms | International |
+|------------------|---------------|
+| Bilibili | YouTube |
+| Douyin (TikTok CN) | Twitter/X |
+| Tencent Video | Facebook |
+| iQIYI | Instagram |
+| Youku | TikTok |
+| Xigua Video | Vimeo |
 
 Full list: [yt-dlp supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) (1000+)
 
 ---
 
-## Project Structure · 项目结构
+## Project Structure
 
 ```
 video-downloader/
-├── video_downloader.py      # Main program · 主程序
+├── video_downloader.py      # Main program
 ├── start_windows.bat        # Windows launcher
 ├── start_mac_linux.sh       # macOS/Linux launcher
 ├── urls.txt                 # Batch URL example
@@ -122,18 +108,16 @@ video-downloader/
 ├── CONTRIBUTING.md
 ├── SECURITY.md
 ├── pyproject.toml
-├── LICENSE                  # MIT
-├── .gitignore
-└── downloads/               # Output directory (auto-created)
+└── ...
 ```
 
 ---
 
-## System Requirements · 系统要求
+## System Requirements
 
 - **Python**: 3.8+
 - **yt-dlp**: auto-installed
-- **FFmpeg**: optional (recommended for video merging)
+- **FFmpeg**: optional (recommended for video/audio merging)
 
 ### Install FFmpeg
 
@@ -145,52 +129,50 @@ video-downloader/
 
 ---
 
-## FAQ · 常见问题
+## FAQ
 
 <details>
-<summary><b>Slow download speed? / 下载速度慢？</b></summary>
+<summary><b>Slow download speed?</b></summary>
 
-- Use a proxy or VPN · 使用代理或 VPN
-- Some sites rate-limit · 某些网站有限速
-- Use `-r` to limit speed and avoid being throttled
+- Use a proxy or VPN
+- Some sites rate-limit
+- Use `-r 1M` to limit speed and avoid throttling
 </details>
 
 <details>
-<summary><b>Video unavailable? / 视频不可用？</b></summary>
+<summary><b>Video unavailable or download fails?</b></summary>
 
-- Check if the URL is valid · 检查链接是否有效
+- Check if the URL is valid
 - Update yt-dlp: `pip install -U yt-dlp`
 - Some videos require login (use option 7)
-- Check verbose log: `yt-dlp -v "URL"`
+- Verbose log: `yt-dlp -v "URL"`
 </details>
 
 <details>
-<summary><b>Download a playlist? / 下载播放列表？</b></summary>
+<summary><b>Download a playlist?</b></summary>
 
 ```bash
-# Full playlist · 整个播放列表
+# Full playlist
 yt-dlp "playlist URL"
 
-# Partial (videos 1-10) · 部分视频
+# Videos 1-10
 yt-dlp --playlist-start 1 --playlist-end 10 "URL"
 ```
 </details>
 
 ---
 
-## Disclaimer · 免责声明
+## Disclaimer
 
 This tool is for **educational and research purposes only**.
-本工具仅供 **教学研究** 使用。
 
-- ✅ Personal learning and research · 个人学习和研究
-- ✅ Course materials · 教学课件制作
-- ❌ Commercial use · 商业用途
-- ❌ Copyright infringement · 侵犯版权
-- ❌ Redistributing downloaded content · 传播下载内容
+- ✅ Personal learning and research
+- ✅ Course material creation
+- ❌ Commercial use
+- ❌ Copyright infringement
+- ❌ Redistributing downloaded content
 
 **Please comply with platform terms of service and local copyright laws.**
-**请遵守视频平台的使用条款和当地的版权法律。**
 
 ---
 
