@@ -515,4 +515,4 @@ if __name__ == "__main__":
         sys.exit(0)
     print("\n---")
     print("Davey Wong <wgwcko@gmail.com> | https://www.guangweiblog.com")
-    print("English primary, Chinese supplementary. Licensed under MIT.\n")
+    print("Licensed under MIT.\n")
