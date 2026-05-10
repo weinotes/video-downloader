@@ -1,7 +1,9 @@
 # 🎬 视频下载工具 | Video Downloader
 
+**Author:** Davey Wong <wgwcko@gmail.com> · [www.guangweiblog.com](https://www.guangweiblog.com)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/weinotes/video-downloader)
 
 一个功能强大的跨平台视频下载工具，支持 YouTube、B站、抖音等 1000+ 视频网站。专为教学研究设计，界面友好，操作简单。
@@ -209,7 +211,7 @@ yt-dlp --playlist-start 1 --playlist-end 10 "播放列表链接"
 
 ## 🛠️ 系统要求
 
-- **Python**: 3.6 或更高版本
+- **Python**: 3.8 或更高版本
 - **yt-dlp**: 自动安装
 - **FFmpeg**: 可选（用于合并视频音频）
 
@@ -267,16 +269,20 @@ sudo apt install ffmpeg
 
 ---
 
-## 📝 许可证
+## 📝 License
 
-本项目采用 [MIT License](LICENSE) 开源许可证。
+MIT License — see [LICENSE](LICENSE)
+
+---
+
+**Davey Wong** <wgwcko@gmail.com> · [www.guangweiblog.com](https://www.guangweiblog.com) · English primary, Chinese supplementary
 
 ---
 
 ## 📮 联系方式
 
-- 📧 Email: service@CryptoTutorialsHub.com
-- 🌐 Website: [CryptoTutorialsHub.com](https://cryptotutorialshub.com)
+- 📧 Email: wgwcko@gmail.com
+- 🌐 Blog: [www.guangweiblog.com](https://www.guangweiblog.com)
 
 ---
 

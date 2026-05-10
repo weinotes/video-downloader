@@ -1,254 +1,354 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-跨平台视频下载工具
-支持 Mac、Linux、Windows 系统
-用于教学研究目的
+Cross-platform video downloader · 跨平台视频下载工具
+
+Supports 1000+ websites (YouTube, Bilibili, Douyin, etc.).
+Designed for educational and research purposes.
+
+Author: Davey Wong <wgwcko@gmail.com> (https://www.guangweiblog.com)
+Licensed under MIT.
 """
 
+from __future__ import annotations
+
 import os
-import sys
-import subprocess
 import platform
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Optional
 
 
-def check_yt_dlp():
-    """检查 yt-dlp 是否已安装"""
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+
+SCRIPT_DIR = Path(__file__).parent.resolve()
+DEFAULT_OUTPUT_DIR = SCRIPT_DIR / "downloads"
+
+# ---------------------------------------------------------------------------
+# yt-dlp check & install
+# ---------------------------------------------------------------------------
+
+def _run_cmd(cmd: list[str], timeout: int = 60) -> subprocess.CompletedProcess:
+    """Run a command and return the result. Raises on error."""
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+
+
+def check_yt_dlp() -> bool:
+    """Check if yt-dlp is installed and reachable."""
     try:
-        subprocess.run(['yt-dlp', '--version'], 
-                      capture_output=True, check=True)
+        _run_cmd(["yt-dlp", "--version"])
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (FileNotFoundError, subprocess.CalledProcessError):
         return False
 
 
-def install_yt_dlp():
-    """安装 yt-dlp"""
+def install_yt_dlp() -> bool:
+    """Install/upgrade yt-dlp via pip."""
     print("正在安装 yt-dlp...")
-    
     try:
-        subprocess.run([sys.executable, '-m', 'pip', 
-                      'install', '-U', 'yt-dlp'], check=True)
+        _run_cmd([sys.executable, "-m", "pip", "install", "-U", "yt-dlp"])
         print("✓ yt-dlp 安装成功！")
         return True
-    except subprocess.CalledProcessError:
-        print("✗ 安装失败，请手动安装：")
-        print("  pip install -U yt-dlp")
-        print("  或访问：https://github.com/yt-dlp/yt-dlp")
+    except subprocess.CalledProcessError as e:
+        print(f"✗ 安装失败: {e.stderr}")
+        print("  手动安装: pip install -U yt-dlp")
+        print("  或访问: https://github.com/yt-dlp/yt-dlp")
         return False
 
 
-def show_menu():
-    """显示菜单"""
-    print("\n" + "="*50)
-    print("视频下载工具 - 用于教学研究")
-    print("="*50)
-    print("1. 下载视频（最高画质）")
-    print("2. 下载视频（指定画质）")
-    print("3. 仅下载音频")
-    print("4. 下载视频+字幕")
-    print("5. 批量下载（从文件读取链接）")
-    print("6. 查看视频信息（不下载）")
-    print("0. 退出")
-    print("="*50)
+# ---------------------------------------------------------------------------
+# FFmpeg check
+# ---------------------------------------------------------------------------
+
+def check_ffmpeg() -> bool:
+    """Check if FFmpeg is available (required for merge operations)."""
+    return shutil.which("ffmpeg") is not None
 
 
-def download_best_quality(url, output_dir="downloads"):
-    """下载最高画质视频"""
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    cmd = [
-        'yt-dlp',
-        '-f', 'bestvideo+bestaudio/best',
-        '--merge-output-format', 'mp4',
-        '-o', f'{output_dir}/%(title)s.%(ext)s',
-        url
-    ]
-    
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def ensure_dir(path: Path) -> None:
+    """Create output directory if it doesn't exist."""
+    path.mkdir(parents=True, exist_ok=True)
+
+
+def run_ytdlp(cmd: list[str]) -> bool:
+    """
+    Run yt-dlp with the given command list.
+    Captures stderr for error reporting.
+    Returns True on success.
+    """
     try:
-        subprocess.run(cmd, check=True)
-        print("\n✓ 下载完成！")
-    except subprocess.CalledProcessError:
-        print("\n✗ 下载失败")
+        result = subprocess.run(cmd, text=True, timeout=3600)
+        return result.returncode == 0
+    except FileNotFoundError:
+        print("\n✗ yt-dlp 未找到，请重新安装")
+        return False
+    except subprocess.TimeoutExpired:
+        print("\n✗ 下载超时，请检查网络连接")
+        return False
 
 
-def download_custom_quality(url, output_dir="downloads"):
-    """下载指定画质"""
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    print("\n画质选项：")
-    print("1. 1080p")
-    print("2. 720p")
-    print("3. 480p")
-    print("4. 360p")
-    
-    choice = input("\n选择画质 (1-4): ").strip()
-    
-    quality_map = {
-        '1': 'bestvideo[height<=1080]+bestaudio/best[height<=1080]',
-        '2': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
-        '3': 'bestvideo[height<=480]+bestaudio/best[height<=480]',
-        '4': 'bestvideo[height<=360]+bestaudio/best[height<=360]'
-    }
-    
-    quality = quality_map.get(choice, quality_map['2'])
-    
+def fmt_output(path: Path) -> str:
+    """Return yt-dlp output template for a given directory."""
+    return str(path / "%(title)s.%(ext)s")
+
+
+# ---------------------------------------------------------------------------
+# Menu
+# ---------------------------------------------------------------------------
+
+def show_menu() -> None:
+    print("\n" + "=" * 50)
+    print("      视频下载工具 · Video Downloader")
+    print("=" * 50)
+    print("  1. 下载视频（最高画质）")
+    print("  2. 下载视频（指定画质）")
+    print("  3. 仅下载音频 (MP3)")
+    print("  4. 下载视频 + 字幕")
+    print("  5. 批量下载（从文件读取链接）")
+    print("  6. 查看视频信息（不下载）")
+    print("  0. 退出")
+    print("=" * 50)
+
+
+def prompt_url(label: str = "请输入视频链接") -> Optional[str]:
+    """Prompt for a URL, return None if empty."""
+    url = input(f"\n{label}: ").strip()
+    return url if url else None
+
+
+# ---------------------------------------------------------------------------
+# Download functions
+# ---------------------------------------------------------------------------
+
+def download_best_quality(url: str, output_dir: Path = DEFAULT_OUTPUT_DIR) -> None:
+    """Download best video+audio, merged as MP4."""
+    ensure_dir(output_dir)
     cmd = [
-        'yt-dlp',
-        '-f', quality,
-        '--merge-output-format', 'mp4',
-        '-o', f'{output_dir}/%(title)s.%(ext)s',
-        url
+        "yt-dlp",
+        "-f", "bestvideo+bestaudio/best",
+        "--merge-output-format", "mp4",
+        "--no-playlist",
+        "--embed-thumbnail",
+        "--embed-metadata",
+        "-o", fmt_output(output_dir),
+        url,
     ]
-    
-    try:
-        subprocess.run(cmd, check=True)
-        print("\n✓ 下载完成！")
-    except subprocess.CalledProcessError:
-        print("\n✗ 下载失败")
-
-
-def download_audio(url, output_dir="downloads"):
-    """仅下载音频"""
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    cmd = [
-        'yt-dlp',
-        '-f', 'bestaudio',
-        '--extract-audio',
-        '--audio-format', 'mp3',
-        '--audio-quality', '0',
-        '-o', f'{output_dir}/%(title)s.%(ext)s',
-        url
-    ]
-    
-    try:
-        subprocess.run(cmd, check=True)
-        print("\n✓ 音频下载完成！")
-    except subprocess.CalledProcessError:
-        print("\n✗ 下载失败")
-
-
-def download_with_subtitles(url, output_dir="downloads"):
-    """下载视频和字幕"""
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    cmd = [
-        'yt-dlp',
-        '-f', 'bestvideo+bestaudio/best',
-        '--merge-output-format', 'mp4',
-        '--write-sub',
-        '--write-auto-sub',
-        '--sub-lang', 'zh-Hans,zh-Hant,en',
-        '--convert-subs', 'srt',
-        '-o', f'{output_dir}/%(title)s.%(ext)s',
-        url
-    ]
-    
-    try:
-        subprocess.run(cmd, check=True)
-        print("\n✓ 下载完成（含字幕）！")
-    except subprocess.CalledProcessError:
-        print("\n✗ 下载失败")
-
-
-def batch_download(file_path, output_dir="downloads"):
-    """批量下载"""
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    if not os.path.exists(file_path):
-        print(f"\n✗ 文件不存在: {file_path}")
+    print("正在下载（最高画质）...")
+    if not run_ytdlp(cmd):
         return
-    
+    print(f"\n✓ 下载完成！保存至: {output_dir}")
+
+
+def download_custom_quality(url: str, output_dir: Path = DEFAULT_OUTPUT_DIR) -> None:
+    """Download video at a user-selected resolution."""
+    ensure_dir(output_dir)
+
+    print("\n画质选项：")
+    print("  1. 1080p")
+    print("  2. 720p")
+    print("  3. 480p")
+    print("  4. 360p")
+
+    choice = input("\n选择画质 (1-4): ").strip()
+    quality_map = {
+        "1": "bestvideo[height<=1080]+bestaudio/best[height<=1080]",
+        "2": "bestvideo[height<=720]+bestaudio/best[height<=720]",
+        "3": "bestvideo[height<=480]+bestaudio/best[height<=480]",
+        "4": "bestvideo[height<=360]+bestaudio/best[height<=360]",
+    }
+    quality = quality_map.get(choice, quality_map["2"])
+
     cmd = [
-        'yt-dlp',
-        '-f', 'bestvideo+bestaudio/best',
-        '--merge-output-format', 'mp4',
-        '-a', file_path,
-        '-o', f'{output_dir}/%(title)s.%(ext)s'
+        "yt-dlp",
+        "-f", quality,
+        "--merge-output-format", "mp4",
+        "--no-playlist",
+        "--embed-thumbnail",
+        "--embed-metadata",
+        "-o", fmt_output(output_dir),
+        url,
     ]
-    
-    try:
-        subprocess.run(cmd, check=True)
-        print("\n✓ 批量下载完成！")
-    except subprocess.CalledProcessError:
-        print("\n✗ 下载失败")
+    print(f"正在下载（{choice}p 画质）...")
+    if not run_ytdlp(cmd):
+        return
+    print(f"\n✓ 下载完成！保存至: {output_dir}")
 
 
-def show_video_info(url):
-    """显示视频信息"""
+def download_audio(url: str, output_dir: Path = DEFAULT_OUTPUT_DIR) -> None:
+    """Extract audio as MP3 (best quality)."""
+    ensure_dir(output_dir)
     cmd = [
-        'yt-dlp',
-        '--print', '%(title)s\n%(duration_string)s\n%(resolution)s',
-        '--no-download',
-        url
+        "yt-dlp",
+        "-f", "bestaudio",
+        "--extract-audio",
+        "--audio-format", "mp3",
+        "--audio-quality", "0",
+        "--no-playlist",
+        "--embed-metadata",
+        "--embed-thumbnail",
+        "-o", fmt_output(output_dir),
+        url,
     ]
-    
+    print("正在下载音频...")
+    if not run_ytdlp(cmd):
+        return
+    print(f"\n✓ 音频下载完成！保存至: {output_dir}")
+
+
+def download_with_subtitles(url: str, output_dir: Path = DEFAULT_OUTPUT_DIR) -> None:
+    """Download video with Chinese/English subtitles."""
+    ensure_dir(output_dir)
+    cmd = [
+        "yt-dlp",
+        "-f", "bestvideo+bestaudio/best",
+        "--merge-output-format", "mp4",
+        "--no-playlist",
+        "--write-subs",
+        "--write-auto-subs",
+        "--sub-langs", "zh-Hans,zh-Hant,en",
+        "--convert-subs", "srt",
+        "--embed-subs",
+        "--embed-thumbnail",
+        "--embed-metadata",
+        "-o", fmt_output(output_dir),
+        url,
+    ]
+    print("正在下载（含字幕）...")
+    if not run_ytdlp(cmd):
+        return
+    print(f"\n✓ 下载完成（含字幕）！保存至: {output_dir}")
+
+
+def batch_download(file_path: str, output_dir: Path = DEFAULT_OUTPUT_DIR) -> None:
+    """Batch download URLs from a file."""
+    path = Path(file_path)
+    if not path.exists():
+        print(f"\n✗ 文件不存在: {path}")
+        return
+
+    ensure_dir(output_dir)
+    cmd = [
+        "yt-dlp",
+        "-f", "bestvideo+bestaudio/best",
+        "--merge-output-format", "mp4",
+        "--embed-thumbnail",
+        "--embed-metadata",
+        "-a", str(path),
+        "-o", fmt_output(output_dir),
+    ]
+    print(f"正在批量下载（来源: {path.name}）...")
+    if not run_ytdlp(cmd):
+        return
+    print(f"\n✓ 批量下载完成！保存至: {output_dir}")
+
+
+def show_video_info(url: str) -> None:
+    """Display video metadata without downloading."""
+    cmd = [
+        "yt-dlp",
+        "--print", "title: %(title)s",
+        "--print", "duration: %(duration_string)s",
+        "--print", "resolution: %(resolution)s",
+        "--print", "uploader: %(uploader)s",
+        "--print", "view_count: %(view_count)s",
+        "--print", " webpage_url: %(webpage_url)s",
+        "--no-download",
+        "--no-playlist",
+        url,
+    ]
     try:
-        subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True, text=True, timeout=30)
     except subprocess.CalledProcessError:
-        print("\n✗ 获取信息失败")
+        print("\n✗ 获取信息失败，请检查链接和网络")
+    except subprocess.TimeoutExpired:
+        print("\n✗ 请求超时")
 
 
-def main():
-    """主函数"""
-    # 检查 yt-dlp 是否已安装
+# ---------------------------------------------------------------------------
+# Pre-flight checks
+# ---------------------------------------------------------------------------
+
+def preflight() -> bool:
+    """Run pre-flight checks and print warnings. Returns True if OK to proceed."""
+    ok = True
     if not check_yt_dlp():
         print("未检测到 yt-dlp")
-        install = input("是否现在安装？(y/n): ").strip().lower()
-        if install == 'y':
+        ans = input("是否现在安装？(y/n): ").strip().lower()
+        if ans == "y":
             if not install_yt_dlp():
-                return
+                return False
         else:
             print("请先安装 yt-dlp")
-            return
-    
+            return False
+
+    if not check_ffmpeg():
+        print("⚠️  未检测到 FFmpeg")
+        print("   视频+音频合并功能可能需要 FFmpeg")
+        print("   安装: brew install ffmpeg / sudo apt install ffmpeg")
+        print("   或: https://ffmpeg.org/download.html\n")
+        # Proceed anyway — yt-dlp may handle some cases without FFmpeg
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Main entry
+# ---------------------------------------------------------------------------
+
+BANNER = """
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║          视频下载工具 · Video Downloader v2.0                 ║
+║          支持 1000+ 视频网站 · 教学研究用途                    ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+"""
+
+
+def main() -> None:
+    print(BANNER)
+    if not preflight():
+        return
+
     while True:
         show_menu()
         choice = input("\n请选择功能 (0-6): ").strip()
-        
-        if choice == '0':
+
+        if choice == "0":
             print("\n再见！")
             break
-        
-        elif choice == '1':
-            url = input("\n请输入视频链接: ").strip()
-            if url:
-                download_best_quality(url)
-        
-        elif choice == '2':
-            url = input("\n请输入视频链接: ").strip()
-            if url:
-                download_custom_quality(url)
-        
-        elif choice == '3':
-            url = input("\n请输入视频链接: ").strip()
-            if url:
-                download_audio(url)
-        
-        elif choice == '4':
-            url = input("\n请输入视频链接: ").strip()
-            if url:
-                download_with_subtitles(url)
-        
-        elif choice == '5':
-            file_path = input("\n请输入包含链接的文件路径: ").strip()
-            if file_path:
-                batch_download(file_path)
-        
-        elif choice == '6':
-            url = input("\n请输入视频链接: ").strip()
-            if url:
-                show_video_info(url)
-        
+
+        url: Optional[str] = None
+        if choice in ("1", "2", "3", "4", "6"):
+            url = prompt_url()
+            if not url:
+                print("链接不能为空")
+                continue
+
+        if choice == "1":
+            download_best_quality(url)  # type: ignore[arg-type]
+        elif choice == "2":
+            download_custom_quality(url)  # type: ignore[arg-type]
+        elif choice == "3":
+            download_audio(url)  # type: ignore[arg-type]
+        elif choice == "4":
+            download_with_subtitles(url)  # type: ignore[arg-type]
+        elif choice == "5":
+            fp = input("\n请输入包含链接的文件路径: ").strip()
+            if fp:
+                batch_download(fp)
+        elif choice == "6":
+            show_video_info(url)  # type: ignore[arg-type]
         else:
-            print("\n✗ 无效选择，请重试")
-        
+            print("\n✗ 无效选择，请输入 0-6")
+
         input("\n按回车键继续...")
 
 
@@ -258,3 +358,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n\n程序已退出")
         sys.exit(0)
+    print("\n---")
+    print("Davey Wong <wgwcko@gmail.com> | https://www.guangweiblog.com")
+    print("English primary, Chinese supplementary. Licensed under MIT.\n")

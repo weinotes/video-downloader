@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "video-downloader"
+version = "2.0.0"
+description = "Cross-platform video downloader supporting 1000+ websites (YouTube, Bilibili, Douyin, etc.)"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Davey Wong", email = "wgwcko@gmail.com"},
+]
+keywords = ["video-downloader", "yt-dlp", "youtube", "bilibili", "downloader"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Video",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.8"
+dependencies = []
+
+[project.urls]
+Author = "https://www.guangweiblog.com"
+Homepage = "https://github.com/weinotes/video-downloader"
+Repository = "https://github.com/weinotes/video-downloader"
+Issues = "https://github.com/weinotes/video-downloader/issues"
