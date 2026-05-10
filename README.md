@@ -1,5 +1,7 @@
 # Video Downloader
 
+[简体中文](README.zh-CN.md) | English
+
 🎬 Download videos from 1000+ websites (YouTube, Bilibili, Douyin, Twitter, etc.)
 
 **Author:** Davey Wong <wgwcko@gmail.com> · [www.guangweiblog.com](https://www.guangweiblog.com)

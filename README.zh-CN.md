@@ -1,5 +1,7 @@
 # 视频下载工具
 
+中文 | [English](README.md)
+
 🎬 跨平台视频下载工具，支持 YouTube、B站、抖音等 1000+ 视频网站
 
 **作者：** Davey Wong <wgwcko@gmail.com> · [www.guangweiblog.com](https://www.guangweiblog.com)
